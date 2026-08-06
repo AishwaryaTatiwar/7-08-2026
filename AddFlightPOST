@@ -1,0 +1,51 @@
+[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult AddFlight(Flight model)
+{
+    if(!ModelState.IsValid)
+        return PartialView(model);
+
+    model.AvailableSeats=model.TotalSeats;
+
+    db.Flights.Add(model);
+
+    db.SaveChanges();
+
+    string[] seatLetters={"A","B","C","D","E","F"};
+
+    int seatCount=0;
+
+    for(int row=1;seatCount<model.TotalSeats;row++)
+    {
+        foreach(string letter in seatLetters)
+        {
+            if(seatCount==model.TotalSeats)
+                break;
+
+            FlightSeat seat=new FlightSeat();
+
+            seat.FlightID=model.FlightID;
+
+            seat.SeatNumber=row+letter;
+
+            if(letter=="A"||letter=="F")
+                seat.SeatType="Window";
+            else if(letter=="C"||letter=="D")
+                seat.SeatType="Aisle";
+            else
+                seat.SeatType="Middle";
+
+            seat.IsBooked=false;
+
+            db.FlightSeats.Add(seat);
+
+            seatCount++;
+        }
+    }
+
+    db.SaveChanges();
+
+    TempData["Success"]="Flight added successfully.";
+
+    return RedirectToAction("ManageFlights");
+}
