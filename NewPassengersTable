@@ -11,7 +11,7 @@ CREATE TABLE Passengers
     PassengerGender NVARCHAR(10) NOT NULL
         CHECK(PassengerGender IN('Male','Female','Other')),
 
-    SeatNumber NVARCHAR(5) NULL,
+    FlightSeatID NVARCHAR(5) NULL,
 
     CONSTRAINT FK_Passenger_Booking
         FOREIGN KEY(BookingID)
