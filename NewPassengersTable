@@ -8,10 +8,10 @@ CREATE TABLE Passengers
 
     PassengerAge INT NOT NULL,
 
-    PassengerGender NVARCHAR(10)
-        CHECK (PassengerGender IN ('Male','Female','Other')),
+    PassengerGender NVARCHAR(10) NOT NULL
+        CHECK(PassengerGender IN('Male','Female','Other')),
 
-    SeatNumber NVARCHAR(5) NOT NULL,
+    SeatNumber NVARCHAR(5) NULL,
 
     CONSTRAINT FK_Passenger_Booking
         FOREIGN KEY(BookingID)
