@@ -1,0 +1,19 @@
+CREATE TABLE Passengers
+(
+    PassengerID INT IDENTITY(1,1) PRIMARY KEY,
+
+    BookingID INT NOT NULL,
+
+    PassengerName NVARCHAR(100) NOT NULL,
+
+    PassengerAge INT NOT NULL,
+
+    PassengerGender NVARCHAR(10)
+        CHECK (PassengerGender IN ('Male','Female','Other')),
+
+    SeatNumber NVARCHAR(5) NOT NULL,
+
+    CONSTRAINT FK_Passenger_Booking
+        FOREIGN KEY(BookingID)
+        REFERENCES Bookings(BookingID)
+);
