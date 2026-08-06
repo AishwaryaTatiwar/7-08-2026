@@ -1,0 +1,39 @@
+CREATE PROCEDURE sp_SearchFlights
+(
+    @Source NVARCHAR(100),
+    @Destination NVARCHAR(100),
+    @JourneyDate DATE
+)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT *
+    FROM Flights
+    WHERE Source=@Source
+    AND Destination=@Destination
+    AND CAST(DepartureTime AS DATE)=@JourneyDate
+    AND Status='Scheduled'
+    AND AvailableSeats>0
+    ORDER BY DepartureTime;
+END
+GO
+
+Controller
+[HttpPost]
+public ActionResult SearchFlights(string source,string destination,DateTime journeyDate)
+{
+    var flights=db.sp_SearchFlights(source,destination,journeyDate).ToList();
+
+    return View(flights);
+}
+
+SearchFlights.cshtml
+<div class="col-md-4">
+    <label class="form-label">Journey Date</label>
+    <input type="date"
+           name="journeyDate"
+           class="form-control"
+           min="@DateTime.Today.ToString("yyyy-MM-dd")"
+           required />
+</div>
