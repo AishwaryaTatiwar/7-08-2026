@@ -1,0 +1,12 @@
+CREATE TABLE Bookings
+(
+    BookingID INT IDENTITY(1,1) PRIMARY KEY,
+    UserID INT NOT NULL,
+    FlightID INT NOT NULL,
+    BookingDate DATETIME NOT NULL DEFAULT GETDATE(),
+    TotalAmount DECIMAL(10,2) NOT NULL DEFAULT 0,
+    BookingStatus NVARCHAR(20) NOT NULL
+        CHECK(BookingStatus IN('Pending','Confirmed','Cancelled')),
+    CONSTRAINT FK_Booking_User FOREIGN KEY(UserID) REFERENCES Users(UserID),
+    CONSTRAINT FK_Booking_Flight FOREIGN KEY(FlightID) REFERENCES Flights(FlightID)
+);
