@@ -69,3 +69,5 @@ Booking booking = db.Bookings.Find(bookingId);
 booking.TotalAmount = FinalAmount;
 
 db.SaveChanges();
+
+<input type="hidden" id="FinalAmount" name="FinalAmount" />
