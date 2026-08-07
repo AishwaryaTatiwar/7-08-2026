@@ -1,0 +1,18 @@
+<input class="form-control"
+       name="Expiry"
+       placeholder="MM/YY" />
+
+<input class="form-control"
+       type="password"
+       name="CVV"
+       maxlength="3"
+       placeholder="CVV" />
+
+<input class="form-control mb-3"
+       name="CardNumber"
+       maxlength="16"
+       placeholder="Card Number" />
+<input class="form-control mb-3"
+       name="CardHolder"
+       placeholder="Card Holder Name"
+       required />
