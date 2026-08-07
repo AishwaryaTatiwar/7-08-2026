@@ -1,7 +1,6 @@
 @{
     ViewBag.Title = "Forgot Password";
     Layout = null;
-    bool showQuestion = ViewBag.ShowQuestion != null;
 }
 
 <!DOCTYPE html>
@@ -49,41 +48,32 @@
                             <input type="email" name="Email" class="form-control" required />
                         </div>
 
-                        if (showQuestion)
-                        {
-                            <div class="mb-3">
-                                <label>Security Question</label>
-                                <input type="text"
-                                       class="form-control"
-                                       value="What is your favourite colour?"
-                                       readonly />
-                            </div>
+                        <div class="mb-3">
+                            <label>Security Question</label>
+                            <input type="text"
+                                   class="form-control"
+                                   value="What is your favourite colour?"
+                                   readonly />
+                        </div>
 
-                            <div class="mb-3">
-                                <label>Security Answer</label>
-                                <input type="text"
-                                       name="SecurityAnswer"
-                                       class="form-control"
-                                       required />
-                            </div>
+                        <div class="mb-3">
+                            <label>Security Answer</label>
+                            <input type="text"
+                                   name="SecurityAnswer"
+                                   class="form-control"
+                                   required />
+                        </div>
 
-                            <div class="mb-3">
-                                <label>New Password</label>
-                                <input type="password"
-                                       name="NewPassword"
-                                       class="form-control"
-                                       required />
-                            </div>
-
-                            <input type="hidden" name="Step" value="2" />
-                        }
-                        else
-                        {
-                            <input type="hidden" name="Step" value="1" />
-                        }
+                        <div class="mb-3">
+                            <label>New Password</label>
+                            <input type="password"
+                                   name="NewPassword"
+                                   class="form-control"
+                                   required />
+                        </div>
 
                         <button type="submit" class="btn btn-primary w-100">
-                            @(showQuestion ? "Reset Password" : "Verify")
+                            Reset Password
                         </button>
                     }
 
@@ -105,3 +95,35 @@
 
 </body>
 </html>
+
+[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult ForgotPassword(string Username,
+                                   string Email,
+                                   string SecurityAnswer,
+                                   string NewPassword)
+{
+    var user = db.Users.FirstOrDefault(x =>
+        x.Username == Username &&
+        x.Email == Email);
+
+    if (user == null)
+    {
+        ViewBag.Message = "Invalid Username or Email.";
+        return View();
+    }
+
+    if (!user.SecurityAnswer.Equals(SecurityAnswer, StringComparison.OrdinalIgnoreCase))
+    {
+        ViewBag.Message = "Incorrect Security Answer.";
+        return View();
+    }
+
+    user.PasswordHash = Crypto.HashPassword(NewPassword);
+
+    db.SaveChanges();
+
+    TempData["Success"] = "Password changed successfully.";
+
+    return RedirectToAction("Login");
+}
