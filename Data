@@ -1,41 +1,33 @@
-@using (Html.BeginForm())
+model.AvailableSeats = model.TotalSeats;
+
+db.Flights.Add(model);
+db.SaveChanges();
+
+// Populate FlightSeats table
+int seatCount = 0;
+char row = 'A';
+
+while (seatCount < model.TotalSeats)
 {
-    <div class="row">
-        <div class="col-md-4">
-            <label class="form-label">Source</label>
-            <input type="text" name="source" class="form-control" required />
-        </div>
+    for (int col = 1; col <= 6 && seatCount < model.TotalSeats; col++)
+    {
+        FlightSeat seat = new FlightSeat();
 
-        <div class="col-md-4">
-            <label class="form-label">Destination</label>
-            <input type="text" name="destination" class="form-control" required />
-        </div>
+        seat.FlightID = model.FlightID;
+        seat.SeatNumber = row.ToString() + col;
+        seat.SeatType = "Economy";
+        seat.IsBooked = false;
+        seat.PassengerID = null;
 
-        <div class="col-md-3">
-            <label class="form-label">Travel Date</label>
-            <input type="date" name="travelDate" class="form-control" required />
-        </div>
+        db.FlightSeats.Add(seat);
 
-        <div class="col-md-1 d-grid">
-            <label>&nbsp;</label>
-            <button class="btn btn-primary">
-                <i class="bi bi-search"></i>
-            </button>
-        </div>
-    </div>
+        seatCount++;
+    }
+
+    row++;
 }
-[HttpPost]
-public ActionResult SearchFlights(string source, string destination, DateTime travelDate)
-{
-    var flights = db.Flights
-                    .Where(f => f.Source == source
-                             && f.Destination == destination
-                             && f.DepartureTime.Year == travelDate.Year
-                             && f.DepartureTime.Month == travelDate.Month
-                             && f.DepartureTime.Day == travelDate.Day
-                             && f.Status == "Scheduled"
-                             && f.AvailableSeats > 0)
-                    .ToList();
 
-    return View(flights);
-}
+db.SaveChanges();
+
+TempData["Success"] = "Flight added successfully";
+return RedirectToAction("ManageFlights", "Admin");
