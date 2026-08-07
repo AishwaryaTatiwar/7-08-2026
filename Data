@@ -1,0 +1,17 @@
+<div class="mb-3">
+    <label>Security Question</label>
+    <input type="text"
+           class="form-control"
+           value="What is your favourite colour?"
+           readonly />
+</div>
+
+<div class="mb-3">
+    <label>Security Answer</label>
+    @Html.TextBoxFor(m => m.SecurityAnswer,
+        new
+        {
+            @class = "form-control",
+            placeholder = "Enter your answer"
+        })
+</div>
