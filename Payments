@@ -1,0 +1,214 @@
+public ActionResult Payment(int bookingId)
+{
+    Booking booking = db.Bookings.Find(bookingId);
+
+    if (booking == null)
+        return HttpNotFound();
+
+    Flight flight = db.Flights.Find(booking.FlightID);
+
+    ViewBag.Booking = booking;
+    ViewBag.Flight = flight;
+
+    return View();
+}
+@{
+    ViewBag.Title = "Payment";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var booking = ViewBag.Booking as Airlinemgmtsystem.Booking;
+    var flight = ViewBag.Flight as Airlinemgmtsystem.Flight;
+}
+<div class="card shadow">
+
+    <div class="card-header bg-primary text-white">
+        <h3>Complete Your Payment</h3>
+    </div>
+
+    <div class="card-body">
+
+        <div class="row">
+
+            <!-- Booking Summary -->
+
+            <div class="col-md-5">
+
+                <div class="card border-primary">
+
+                    <div class="card-header bg-light">
+                        <h5>Booking Summary</h5>
+                    </div>
+
+                    <div class="card-body">
+
+                        <table class="table">
+
+                            <tr>
+                                <th>Booking ID</th>
+                                <td>@booking.BookingID</td>
+                            </tr>
+
+                            <tr>
+                                <th>Flight</th>
+                                <td>@flight.FlightNumber</td>
+                            </tr>
+
+                            <tr>
+                                <th>Airline</th>
+                                <td>@flight.Airline</td>
+                            </tr>
+
+                            <tr>
+                                <th>Route</th>
+                                <td>@flight.Source → @flight.Destination</td>
+                            </tr>
+
+                            <tr>
+                                <th>Travel Date</th>
+                                <td>@flight.DepartureTime.ToString("dd MMM yyyy")</td>
+                            </tr>
+
+                            <tr>
+                                <th>Total Amount</th>
+                                <td class="text-success">
+                                    <h4>₹@booking.TotalAmount</h4>
+                                </td>
+                            </tr>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Payment -->
+
+            <div class="col-md-7">
+
+                @using (Html.BeginForm())
+                {
+                    @Html.Hidden("bookingId", booking.BookingID)
+
+                    <label class="fw-bold">Select Payment Method</label>
+
+                    <div class="form-check mt-3">
+                        <input class="form-check-input"
+                               type="radio"
+                               name="payment"
+                               checked>
+
+                        <label class="form-check-label">
+                            Credit Card
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input"
+                               type="radio"
+                               name="payment">
+
+                        <label class="form-check-label">
+                            Debit Card
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <input class="form-check-input"
+                               type="radio"
+                               name="payment">
+
+                        <label class="form-check-label">
+                            UPI
+                        </label>
+                    </div>
+
+                    <div class="form-check mb-4">
+                        <input class="form-check-input"
+                               type="radio"
+                               name="payment">
+
+                        <label class="form-check-label">
+                            Net Banking
+                        </label>
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label>Card Holder Name</label>
+
+                        <input type="text"
+                               class="form-control"
+                               required>
+
+                    </div>
+
+                    <div class="mb-3">
+
+                        <label>Card Number</label>
+
+                        <input type="text"
+                               maxlength="16"
+                               class="form-control"
+                               placeholder="1234 5678 9012 3456"
+                               required>
+
+                    </div>
+
+                    <div class="row">
+
+                        <div class="col-md-6">
+
+                            <label>Expiry Date</label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   placeholder="MM/YY"
+                                   required>
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <label>CVV</label>
+
+                            <input type="password"
+                                   maxlength="3"
+                                   class="form-control"
+                                   required>
+
+                        </div>
+
+                    </div>
+
+                    <button class="btn btn-success btn-lg w-100 mt-4">
+
+                        Pay ₹@booking.TotalAmount
+
+                    </button>
+
+                }
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+[HttpPost]
+public ActionResult Payment(int bookingId)
+{
+    Booking booking = db.Bookings.Find(bookingId);
+
+    if (booking == null)
+        return HttpNotFound();
+
+    booking.BookingStatus = "Confirmed";
+
+    db.SaveChanges();
+
+    return RedirectToAction("BookingSummary",
+                            new { bookingId = booking.BookingID });
+}
