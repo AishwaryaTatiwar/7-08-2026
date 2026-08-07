@@ -212,3 +212,18 @@ public ActionResult Payment(int bookingId)
     return RedirectToAction("BookingSummary",
                             new { bookingId = booking.BookingID });
 }
+[HttpPost]
+public ActionResult Payment(int bookingId, string paymentMethod)
+{
+    Booking booking = db.Bookings.Find(bookingId);
+
+    if (booking == null)
+        return HttpNotFound();
+
+    booking.BookingStatus = "Confirmed";
+
+    db.SaveChanges();
+
+    return RedirectToAction("BookingSummary",
+        new { bookingId = booking.BookingID });
+}
