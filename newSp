@@ -1,0 +1,126 @@
+SELECT * FROM USERS
+SELECT * FROM FLIGHTS
+
+CREATE PROCEDURE sp_SearchFlights
+    @SourceCity NVARCHAR(100),
+    @DestinationCity NVARCHAR(100),
+    @TravelDate DATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        FlightID,
+        FlightNumber,
+        Airline,
+        Source,
+        Destination,
+        DepartureTime,
+        ArrivalTime,
+        Price,
+        TotalSeats,
+        AvailableSeats,
+        Status
+    FROM Flights
+    WHERE SourceCity = @SourceCity
+      AND DestinationCity = @DestinationCity
+      AND FlightDate = @TravelDate
+      AND Status = 'Scheduled'
+      AND AvailableSeats > 0
+    ORDER BY DepartureTime;
+END
+
+CREATE PROCEDURE sp_AdminSearchFlights
+    @SearchText NVARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT *
+    FROM Flights
+    WHERE FlightNumber LIKE '%' + @SearchText + '%'
+       OR AirlineName LIKE '%' + @SearchText + '%'
+    ORDER BY FlightDate DESC;
+END
+
+CREATE PROCEDURE sp_AdminSearchUsers
+    @Name NVARCHAR(100)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        UserID,
+        FullName,
+        Email,
+        Phone,
+        Role,
+        IsActive
+    FROM Users
+    WHERE FullName LIKE '%' + @Name + '%'
+    ORDER BY FullName;
+END
+
+CREATE PROCEDURE sp_AdminSearchBooking
+    @BookingID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        B.BookingID,
+        U.FullName,
+        F.FlightNumber,
+        B.BookingDate,
+        B.TotalAmount,
+        B.BookingStatus,
+        B.PaymentStatus
+    FROM Bookings B
+    INNER JOIN Users U
+        ON B.UserID = U.UserID
+    INNER JOIN Flights F
+        ON B.FlightID = F.FlightID
+    WHERE B.BookingID = @BookingID;
+END
+
+CREATE PROCEDURE sp_GetFlightSeats
+    @FlightID INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        SeatID,
+        SeatNumber,
+        SeatClass,
+        IsBooked
+    FROM FlightSeats
+    WHERE FlightID = @FlightID
+    ORDER BY SeatNumber;
+END
+
+
+
+ALTER TABLE PASSENGERS
+DROP COLUMN SeatNumber;
+
+ALTER TABLE PASSENGERS
+ADD FLIGHTSEATID INT NULL;
+
+ALTER TABLE PASSENGERS
+ADD CONSTRAINT
+FK_PASSENGERS_FLIGHTSEATS
+FOREIGN KEY (FLIGHTSEATID)
+REFERENCES FLIGHTSEATS(SEATID)
+
+ALTER TABLE Users
+ADD SecurityAnswer NVARCHAR(255) NOT NULL DEFAULT('');
+
+ALTER TABLE BOOKINGS
+DROP CONSTRAINT
+CK_BOOKINGS_BOOKINGSTATUS
+
+ALTER TABLE BOOKINGS
+ADD CONSTRAINT
+CK_BOOKINGS_BOOKINGSTATUS
+CHECK(BOOKINGSTATUS IN ('Pending','Confirmed','Cancelled'));
