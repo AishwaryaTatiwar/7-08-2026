@@ -1,9 +1,6 @@
-SELECT * FROM USERS
-SELECT * FROM FLIGHTS
-
 CREATE PROCEDURE sp_SearchFlights
-    @SourceCity NVARCHAR(100),
-    @DestinationCity NVARCHAR(100),
+    @Source NVARCHAR(50),
+    @Destination NVARCHAR(50),
     @TravelDate DATE
 AS
 BEGIN
@@ -22,13 +19,13 @@ BEGIN
         AvailableSeats,
         Status
     FROM Flights
-    WHERE SourceCity = @SourceCity
-      AND DestinationCity = @DestinationCity
-      AND FlightDate = @TravelDate
+    WHERE Source = @Source
+      AND Destination = @Destination
+      AND CAST(DepartureTime AS DATE) = @TravelDate
       AND Status = 'Scheduled'
       AND AvailableSeats > 0
     ORDER BY DepartureTime;
-END
+END;
 
 CREATE PROCEDURE sp_AdminSearchFlights
     @SearchText NVARCHAR(100)
@@ -39,9 +36,9 @@ BEGIN
     SELECT *
     FROM Flights
     WHERE FlightNumber LIKE '%' + @SearchText + '%'
-       OR AirlineName LIKE '%' + @SearchText + '%'
-    ORDER BY FlightDate DESC;
-END
+       OR Airline LIKE '%' + @SearchText + '%'
+    ORDER BY DepartureTime DESC;
+END;
 
 CREATE PROCEDURE sp_AdminSearchUsers
     @Name NVARCHAR(100)
@@ -51,15 +48,13 @@ BEGIN
 
     SELECT
         UserID,
-        FullName,
+        Username,
         Email,
-        Phone,
-        Role,
-        IsActive
+        Role
     FROM Users
-    WHERE FullName LIKE '%' + @Name + '%'
-    ORDER BY FullName;
-END
+    WHERE Username LIKE '%' + @Name + '%'
+    ORDER BY Username;
+END;
 
 CREATE PROCEDURE sp_AdminSearchBooking
     @BookingID INT
@@ -69,19 +64,18 @@ BEGIN
 
     SELECT
         B.BookingID,
-        U.FullName,
+        U.Username,
         F.FlightNumber,
         B.BookingDate,
         B.TotalAmount,
-        B.BookingStatus,
-        B.PaymentStatus
+        B.BookingStatus
     FROM Bookings B
     INNER JOIN Users U
         ON B.UserID = U.UserID
     INNER JOIN Flights F
         ON B.FlightID = F.FlightID
     WHERE B.BookingID = @BookingID;
-END
+END;
 
 CREATE PROCEDURE sp_GetFlightSeats
     @FlightID INT
@@ -92,35 +86,29 @@ BEGIN
     SELECT
         SeatID,
         SeatNumber,
-        SeatClass,
-        IsBooked
+        SeatType,
+        IsBooked,
+        PassengerID
     FROM FlightSeats
     WHERE FlightID = @FlightID
     ORDER BY SeatNumber;
-END
+END;
 
-
-
-ALTER TABLE PASSENGERS
+ALTER TABLE Passengers
 DROP COLUMN SeatNumber;
-
-ALTER TABLE PASSENGERS
-ADD FLIGHTSEATID INT NULL;
-
-ALTER TABLE PASSENGERS
-ADD CONSTRAINT
-FK_PASSENGERS_FLIGHTSEATS
-FOREIGN KEY (FLIGHTSEATID)
-REFERENCES FLIGHTSEATS(SEATID)
+ALTER TABLE Passengers
+ADD FlightSeatID INT NULL;
+ALTER TABLE Passengers
+ADD CONSTRAINT FK_Passengers_FlightSeats
+FOREIGN KEY (FlightSeatID)
+REFERENCES FlightSeats(SeatID);
 
 ALTER TABLE Users
 ADD SecurityAnswer NVARCHAR(255) NOT NULL DEFAULT('');
 
-ALTER TABLE BOOKINGS
-DROP CONSTRAINT
-CK_BOOKINGS_BOOKINGSTATUS
+ALTER TABLE Bookings
+DROP CONSTRAINT CK_Bookings_BookingStatus;
 
-ALTER TABLE BOOKINGS
-ADD CONSTRAINT
-CK_BOOKINGS_BOOKINGSTATUS
-CHECK(BOOKINGSTATUS IN ('Pending','Confirmed','Cancelled'));
+ALTER TABLE Bookings
+ADD CONSTRAINT CK_Bookings_BookingStatus
+CHECK (BookingStatus IN ('Pending','Confirmed','Cancelled'));
