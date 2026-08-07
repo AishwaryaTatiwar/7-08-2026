@@ -1,32 +1,168 @@
-int seatCount = 0;
-char row = 'A';
-
-while (seatCount < model.TotalSeats)
+public ActionResult PassengerDetails(int id)
 {
-    for (int i = 1; i <= 6 && seatCount < model.TotalSeats; i++)
-    {
-        FlightSeat fs = new FlightSeat();
+    if (Session["UserID"] == null)
+        return RedirectToAction("Login", "User");
 
-        fs.FlightID = model.FlightID;
-        fs.SeatNumber = row.ToString() + i;
+    Flight flight = db.Flights.Find(id);
 
-        // Window, Middle, Aisle
-        if (i == 1 || i == 6)
-            fs.SeatType = "Window";
-        else if (i == 2 || i == 5)
-            fs.SeatType = "Middle";
-        else
-            fs.SeatType = "Aisle";
+    if (flight == null)
+        return HttpNotFound();
 
-        fs.IsBooked = false;
-        fs.PassengerID = null;
+    ViewBag.Flight = flight;
 
-        db.FlightSeats.Add(fs);
-
-        seatCount++;
-    }
-
-    row++;
+    return View();
 }
 
-db.SaveChanges();
+@model List<Airlinemgmtsystem.Passenger>
+
+@{
+    ViewBag.Title = "Passenger Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var flight = ViewBag.Flight as Airlinemgmtsystem.Flight;
+}
+
+<div class="card shadow">
+
+    <div class="card-header bg-primary text-white">
+        <h3>Passenger Details</h3>
+    </div>
+
+    <div class="card-body">
+
+        <h5>@flight.Airline</h5>
+
+        <p>
+            <strong>Flight No :</strong> @flight.FlightNumber
+        </p>
+
+        <p>
+            <strong>@flight.Source</strong>
+            →
+            <strong>@flight.Destination</strong>
+        </p>
+
+        <hr />
+
+        @using (Html.BeginForm())
+        {
+            @Html.Hidden("FlightID", flight.FlightID)
+
+            <div class="mb-3">
+
+                <label>
+                    Number of Passengers
+                </label>
+
+                <select id="PassengerCount"
+                        class="form-select">
+
+                    @for (int i = 1; i <= 6; i++)
+                    {
+                        <option>@i</option>
+                    }
+
+                </select>
+
+            </div>
+
+            <div id="PassengerContainer">
+
+            </div>
+
+            <button class="btn btn-success">
+                Continue
+            </button>
+
+        }
+
+    </div>
+
+</div>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<script>
+
+$(function(){
+
+    loadPassengers(1);
+
+    $("#PassengerCount").change(function(){
+
+        loadPassengers($(this).val());
+
+    });
+
+});
+
+function loadPassengers(count){
+
+    var html="";
+
+    for(var i=0;i<count;i++)
+    {
+        html +=
+        '<div class="card mb-3 p-3">'+
+
+        '<h5>Passenger '+(i+1)+'</h5>'+
+
+        '<input type="text" name="Passengers['+i+'].PassengerName" class="form-control mb-2" placeholder="Passenger Name" required />'+
+
+        '<input type="number" name="Passengers['+i+'].PassengerAge" class="form-control mb-2" placeholder="Age" required />'+
+
+        '<select name="Passengers['+i+'].PassengerGender" class="form-select">'+
+
+        '<option>Male</option>'+
+
+        '<option>Female</option>'+
+
+        '<option>Other</option>'+
+
+        '</select>'+
+
+        '</div>';
+    }
+
+    $("#PassengerContainer").html(html);
+
+}
+
+</script>
+
+[HttpPost]
+public ActionResult PassengerDetails(int FlightID, List<Passenger> Passengers)
+{
+    if (Session["UserID"] == null)
+        return RedirectToAction("Login", "User");
+
+    int userId = Convert.ToInt32(Session["UserID"]);
+
+    Flight flight = db.Flights.Find(FlightID);
+
+    Booking booking = new Booking();
+
+    booking.UserID = userId;
+    booking.FlightID = FlightID;
+    booking.BookingDate = DateTime.Now;
+    booking.TotalAmount = flight.Price * Passengers.Count;
+    booking.BookingStatus = "Pending";
+
+    db.Bookings.Add(booking);
+
+    db.SaveChanges();
+
+    foreach (Passenger p in Passengers)
+    {
+        p.BookingID = booking.BookingID;
+
+        db.Passengers.Add(p);
+    }
+
+    db.SaveChanges();
+
+    return RedirectToAction("SeatSelection",
+        new
+        {
+            bookingId = booking.BookingID
+        });
+}
