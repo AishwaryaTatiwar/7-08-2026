@@ -1,0 +1,56 @@
+public ActionResult SeatSelection(int bookingId)
+{
+    Booking booking = db.Bookings.Find(bookingId);
+
+    if (booking == null)
+        return HttpNotFound();
+
+    ViewBag.BookingID = bookingId;
+
+    ViewBag.BaseFare = booking.TotalAmount;
+
+    ViewBag.Passengers = db.Passengers
+                           .Where(x => x.BookingID == bookingId)
+                           .ToList();
+
+    ViewBag.Seats = db.FlightSeats
+                      .Where(x => x.FlightID == booking.FlightID)
+                      .ToList();
+
+    return View();
+}
+
+<div class="alert alert-info">
+
+    <div class="row">
+
+        <div class="col-md-4">
+            <strong>Flight Fare</strong><br />
+            ₹<span id="BaseFare">@ViewBag.BaseFare</span>
+        </div>
+
+        <div class="col-md-4">
+            <strong>Seat Charges</strong><br />
+            ₹<span id="SeatCharges">0</span>
+        </div>
+
+        <div class="col-md-4">
+            <strong>Total Amount</strong><br />
+            <span id="GrandTotal">@ViewBag.BaseFare</span>
+        </div>
+
+    </div>
+
+</div>
+
+var baseFare = Number($("#BaseFare").text());
+
+var seatCharge = 0;
+$("#SeatCharges").text(seatCharge);
+
+$("#GrandTotal").text(baseFare + seatCharge);
+Booking booking = db.Bookings.Find(bookingId);
+
+booking.TotalAmount = FinalAmount;
+
+db.SaveChanges();
