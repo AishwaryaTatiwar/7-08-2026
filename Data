@@ -1,50 +1,89 @@
 <div class="mb-3">
-    <label>Security Question</label>
-    <input type="text"
-           class="form-control"
-           value="What is your favourite colour?"
-           readonly />
+    <label class="form-label">Username</label>
+    <input type="text" name="Username" class="form-control" required />
 </div>
 
 <div class="mb-3">
-    <label>Security Answer</label>
-    @Html.TextBoxFor(m => m.SecurityAnswer,
-        new
-        {
-            @class = "form-control",
-            placeholder = "Enter your answer"
-        })
+    <label class="form-label">Email</label>
+    <input type="email" name="Email" class="form-control" required />
 </div>
 
-if (string.IsNullOrWhiteSpace(model.SecurityAnswer))
+@if (ViewBag.ShowQuestion != null)
 {
-    ViewBag.Message = "Security Answer is required.";
-    return View(model);
+    <div class="mb-3">
+        <label class="form-label">Security Question</label>
+        <input type="text"
+               class="form-control"
+               value="What is your favourite colour?"
+               readonly />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Security Answer</label>
+        <input type="text"
+               name="SecurityAnswer"
+               class="form-control"
+               required />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">New Password</label>
+        <input type="password"
+               name="NewPassword"
+               class="form-control"
+               required />
+    </div>
+
+    <input type="hidden" name="Step" value="2" />
 }
-if (model.PasswordHash != ConfirmPassword)
+else
 {
-    ViewBag.Message = "Passwords do not match.";
-    return View(model);
+    <input type="hidden" name="Step" value="1" />
 }
 
-if (string.IsNullOrWhiteSpace(model.SecurityAnswer))
+<button class="btn btn-primary w-100">
+    @(ViewBag.ShowQuestion != null ? "Reset Password" : "Verify")
+</button>
+
+
+
+[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult ForgotPassword(string Username,
+                                   string Email,
+                                   string SecurityAnswer,
+                                   string NewPassword,
+                                   int Step = 1)
 {
-    ViewBag.Message = "Security Answer is required.";
-    return View(model);
+    var user = db.Users.FirstOrDefault(x =>
+        x.Username == Username &&
+        x.Email == Email);
+
+    if (user == null)
+    {
+        ViewBag.Message = "Invalid Username or Email.";
+        return View();
+    }
+
+    if (Step == 1)
+    {
+        ViewBag.ShowQuestion = true;
+        return View();
+    }
+
+    if (!user.SecurityAnswer.Equals(SecurityAnswer,
+        StringComparison.OrdinalIgnoreCase))
+    {
+        ViewBag.ShowQuestion = true;
+        ViewBag.Message = "Incorrect Security Answer.";
+        return View();
+    }
+
+    user.PasswordHash = Crypto.HashPassword(NewPassword);
+
+    db.SaveChanges();
+
+    TempData["Success"] = "Password Reset Successfully.";
+
+    return RedirectToAction("Login");
 }
-
-if (model.Role == "Admin" && adminExists)
-{
-    ViewBag.Message = "Only one Admin is allowed.";
-    return View(model);
-}
-
-model.PasswordHash = Crypto.HashPassword(model.PasswordHash);
-model.CreatedAt = DateTime.Now;
-
-db.Users.Add(model);
-db.SaveChanges();
-
-TempData["Success"] = "Registration Successful.";
-return RedirectToAction("Login");
-
