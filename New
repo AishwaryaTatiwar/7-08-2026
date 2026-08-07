@@ -54,3 +54,30 @@ Booking booking = db.Bookings.Find(bookingId);
 booking.TotalAmount = FinalAmount;
 
 db.SaveChanges();
+
+[HttpPost]
+public ActionResult SeatSelection(int bookingId, decimal FinalAmount, int[] passengerId, int[] seatId)
+{
+    Booking booking = db.Bookings.Find(bookingId);
+
+    if (booking == null)
+        return HttpNotFound();
+
+    booking.TotalAmount = FinalAmount;
+
+    // Allocate seats
+    for (int i = 0; i < seatId.Length; i++)
+    {
+        FlightSeat seat = db.FlightSeats.Find(seatId[i]);
+
+        seat.IsBooked = true;
+        seat.PassengerID = passengerId[i];
+
+        Passenger passenger = db.Passengers.Find(passengerId[i]);
+        passenger.FlightSeatID = seat.SeatID;
+    }
+
+    db.SaveChanges();
+
+    return RedirectToAction("Payment", new { bookingId = bookingId });
+}
