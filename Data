@@ -1,25 +1,27 @@
-model.AvailableSeats = model.TotalSeats;
-
-db.Flights.Add(model);
-db.SaveChanges();
-
-// Populate FlightSeats table
 int seatCount = 0;
 char row = 'A';
 
 while (seatCount < model.TotalSeats)
 {
-    for (int col = 1; col <= 6 && seatCount < model.TotalSeats; col++)
+    for (int i = 1; i <= 6 && seatCount < model.TotalSeats; i++)
     {
-        FlightSeat seat = new FlightSeat();
+        FlightSeat fs = new FlightSeat();
 
-        seat.FlightID = model.FlightID;
-        seat.SeatNumber = row.ToString() + col;
-        seat.SeatType = "Economy";
-        seat.IsBooked = false;
-        seat.PassengerID = null;
+        fs.FlightID = model.FlightID;
+        fs.SeatNumber = row.ToString() + i;
 
-        db.FlightSeats.Add(seat);
+        // Window, Middle, Aisle
+        if (i == 1 || i == 6)
+            fs.SeatType = "Window";
+        else if (i == 2 || i == 5)
+            fs.SeatType = "Middle";
+        else
+            fs.SeatType = "Aisle";
+
+        fs.IsBooked = false;
+        fs.PassengerID = null;
+
+        db.FlightSeats.Add(fs);
 
         seatCount++;
     }
@@ -28,6 +30,3 @@ while (seatCount < model.TotalSeats)
 }
 
 db.SaveChanges();
-
-TempData["Success"] = "Flight added successfully";
-return RedirectToAction("ManageFlights", "Admin");
