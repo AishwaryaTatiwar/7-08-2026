@@ -15,3 +15,36 @@
             placeholder = "Enter your answer"
         })
 </div>
+
+if (string.IsNullOrWhiteSpace(model.SecurityAnswer))
+{
+    ViewBag.Message = "Security Answer is required.";
+    return View(model);
+}
+if (model.PasswordHash != ConfirmPassword)
+{
+    ViewBag.Message = "Passwords do not match.";
+    return View(model);
+}
+
+if (string.IsNullOrWhiteSpace(model.SecurityAnswer))
+{
+    ViewBag.Message = "Security Answer is required.";
+    return View(model);
+}
+
+if (model.Role == "Admin" && adminExists)
+{
+    ViewBag.Message = "Only one Admin is allowed.";
+    return View(model);
+}
+
+model.PasswordHash = Crypto.HashPassword(model.PasswordHash);
+model.CreatedAt = DateTime.Now;
+
+db.Users.Add(model);
+db.SaveChanges();
+
+TempData["Success"] = "Registration Successful.";
+return RedirectToAction("Login");
+
