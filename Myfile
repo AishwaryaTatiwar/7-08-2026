@@ -1,0 +1,71 @@
+@{
+    int seatPrice = 0;
+
+    if (seat.SeatType == "Window")
+    {
+        seatPrice = 800;
+    }
+    else if (seat.SeatType == "Aisle")
+    {
+        seatPrice = 500;
+    }
+    else
+    {
+        seatPrice = 300;
+    }
+}
+
+<button type="button"
+        class="btn @color seatBtn w-100"
+        data-seatid="@seat.SeatID"
+        data-seat="@seat.SeatNumber"
+        data-price="@seatPrice"
+        title="@seat.SeatType Seat (+₹@seatPrice)"
+        @(seat.IsBooked ? "disabled" : "")>
+
+    @seat.SeatNumber
+</button>
+<span id="BaseFare">@ViewBag.BaseFare</span>
+
+<span id="SeatCharge">0</span>
+
+<span id="TotalAmount">@ViewBag.BaseFare</span>
+
+
+var seatPrice=$(this).data("price");
+
+allocations.push({
+    passenger: passenger,
+    seat: seatId,
+    price: seatPrice
+});
+
+function updateAmount() {
+
+    var baseFare = parseInt($("#BaseFare").text());
+
+    var seatCharge = 0;
+
+    allocations.forEach(function(x) {
+        seatCharge += parseInt(x.price);
+    });
+
+    $("#SeatCharge").text(seatCharge);
+
+    $("#TotalAmount").text(baseFare + seatCharge);
+}
+
+updateAmount();
+<input type="hidden" id="FinalAmount" name="FinalAmount" />
+$("#FinalAmount").val(baseFare + seatCharge);
+
+public ActionResult SeatSelection(int bookingId,
+                                  int[] passengerId,
+                                  int[] seatId,
+                                  decimal FinalAmount)
+
+Booking booking = db.Bookings.Find(bookingId);
+
+booking.TotalAmount = FinalAmount;
+
+db.SaveChanges();
