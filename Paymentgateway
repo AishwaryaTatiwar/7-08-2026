@@ -18,3 +18,37 @@ CREATE TABLE Payments
     FOREIGN KEY (BookingID)
     REFERENCES Bookings(BookingID)
 );
+[HttpPost]
+public ActionResult Payment(int bookingId,
+                            string paymentMethod)
+{
+    Booking booking = db.Bookings.Find(bookingId);
+
+    Payment payment = new Payment();
+
+    payment.BookingID = booking.BookingID;
+
+    payment.PaymentMethod = paymentMethod;
+
+    payment.Amount = booking.TotalAmount;
+
+    payment.PaymentStatus = "Success";
+
+    payment.PaymentDate = DateTime.Now;
+
+    payment.TransactionID = "TXN"
+                          + DateTime.Now.ToString("yyyyMMddHHmmss")
+                          + new Random().Next(1000,9999);
+
+    db.Payments.Add(payment);
+
+    booking.BookingStatus = "Confirmed";
+
+    db.SaveChanges();
+
+    return RedirectToAction("BookingSummary",
+                            new
+                            {
+                                bookingId=booking.BookingID
+                            });
+}
