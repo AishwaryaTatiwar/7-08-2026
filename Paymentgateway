@@ -1,0 +1,20 @@
+CREATE TABLE Payments
+(
+    PaymentID INT IDENTITY(1,1) PRIMARY KEY,
+
+    BookingID INT NOT NULL,
+
+    PaymentMethod NVARCHAR(30) NOT NULL,
+
+    TransactionID NVARCHAR(100) NOT NULL,
+
+    Amount DECIMAL(10,2) NOT NULL,
+
+    PaymentStatus NVARCHAR(20) NOT NULL,
+
+    PaymentDate DATETIME NOT NULL DEFAULT(GETDATE()),
+
+    CONSTRAINT FK_Payments_Bookings
+    FOREIGN KEY (BookingID)
+    REFERENCES Bookings(BookingID)
+);
