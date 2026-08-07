@@ -1,0 +1,122 @@
+<div class="row mt-4">
+
+    <div class="col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                Booking Status
+            </div>
+            <div class="card-body">
+                <canvas id="bookingChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                Flights vs Users
+            </div>
+            <div class="card-body">
+                <canvas id="flightUserChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+</div>
+<div class="row">
+
+    <div class="col-md-12">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white">
+                Revenue Overview
+            </div>
+            <div class="card-body">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+
+new Chart(document.getElementById("bookingChart"), {
+    type: 'doughnut',
+    data: {
+        labels: ['Confirmed','Pending','Cancelled'],
+        datasets: [{
+            data: [
+                @ViewBag.ConfirmedBookings,
+                @ViewBag.PendingBookings,
+                @ViewBag.CancelledBookings
+            ],
+            backgroundColor: [
+                '#28a745',
+                '#ffc107',
+                '#dc3545'
+            ]
+        }]
+    },
+    options:{
+        responsive:true,
+        plugins:{
+            legend:{
+                position:'bottom'
+            }
+        }
+    }
+});
+
+
+new Chart(document.getElementById("flightUserChart"), {
+    type: 'bar',
+    data: {
+        labels:['Flights','Users','Bookings'],
+        datasets:[{
+            label:'Count',
+            data:[
+                @ViewBag.TotalFlights,
+                @ViewBag.TotalUsers,
+                @ViewBag.TotalBookings
+            ],
+            backgroundColor:[
+                '#0d6efd',
+                '#198754',
+                '#ffc107'
+            ]
+        }]
+    },
+    options:{
+        responsive:true,
+        scales:{
+            y:{
+                beginAtZero:true
+            }
+        }
+    }
+});
+
+
+new Chart(document.getElementById("revenueChart"), {
+    type:'line',
+    data:{
+        labels:['Revenue'],
+        datasets:[{
+            label:'Revenue',
+            data:[@ViewBag.TotalRevenue],
+            borderColor:'#dc3545',
+            backgroundColor:'#dc3545',
+            fill:false,
+            tension:0.3
+        }]
+    },
+    options:{
+        responsive:true,
+        scales:{
+            y:{
+                beginAtZero:true
+            }
+        }
+    }
+});
+
+</script>
