@@ -1,0 +1,293 @@
+public ActionResult BookingSummary(int bookingId)
+{
+    Booking booking = db.Bookings.Find(bookingId);
+
+    if (booking == null)
+        return HttpNotFound();
+
+    Flight flight = db.Flights.Find(booking.FlightID);
+
+    Payment payment = db.Payments
+                        .FirstOrDefault(x => x.BookingID == bookingId);
+
+    var passengers = db.Passengers
+                       .Where(x => x.BookingID == bookingId)
+                       .ToList();
+
+    ViewBag.Booking = booking;
+    ViewBag.Flight = flight;
+    ViewBag.Payment = payment;
+    ViewBag.Passengers = passengers;
+
+    return View();
+}
+@{
+    ViewBag.Title = "Booking Summary";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var booking = ViewBag.Booking as Airlinemgmtsystem.Booking;
+    var flight = ViewBag.Flight as Airlinemgmtsystem.Flight;
+    var payment = ViewBag.Payment as Airlinemgmtsystem.Payment;
+    var passengers = ViewBag.Passengers as List<Airlinemgmtsystem.Passenger>;
+}
+<div class="card shadow">
+
+<div class="card-header bg-success text-white">
+
+<h2>
+
+Booking Confirmed
+
+</h2>
+
+</div>
+
+<div class="card-body">
+<h4 class="mb-3">
+
+Booking Details
+
+</h4>
+
+<table class="table table-bordered">
+
+<tr>
+
+<th width="30%">Booking ID</th>
+
+<td>@booking.BookingID</td>
+
+</tr>
+
+<tr>
+
+<th>Booking Date</th>
+
+<td>@booking.BookingDate.ToString("dd MMM yyyy hh:mm tt")</td>
+
+</tr>
+
+<tr>
+
+<th>Status</th>
+
+<td>
+
+<span class="badge bg-success">
+
+@booking.BookingStatus
+
+</span>
+
+</td>
+
+</tr>
+
+</table>
+<h4 class="mt-4">
+
+Flight Details
+
+</h4>
+
+<table class="table table-bordered">
+
+<tr>
+
+<th>Airline</th>
+
+<td>@flight.Airline</td>
+
+</tr>
+
+<tr>
+
+<th>Flight Number</th>
+
+<td>@flight.FlightNumber</td>
+
+</tr>
+
+<tr>
+
+<th>Route</th>
+
+<td>
+
+@flight.Source
+
+→
+
+@flight.Destination
+
+</td>
+
+</tr>
+
+<tr>
+
+<th>Departure</th>
+
+<td>
+
+@flight.DepartureTime.ToString("dd MMM yyyy hh:mm tt")
+
+</td>
+
+</tr>
+
+<tr>
+
+<th>Arrival</th>
+
+<td>
+
+@flight.ArrivalTime.ToString("dd MMM yyyy hh:mm tt")
+
+</td>
+
+</tr>
+
+</table>
+<h4 class="mt-4">
+
+Passenger Details
+
+</h4>
+
+<table class="table table-striped">
+
+<thead class="table-primary">
+
+<tr>
+
+<th>Name</th>
+
+<th>Age</th>
+
+<th>Gender</th>
+
+<th>Seat</th>
+
+<th>Seat Type</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+@foreach (var p in passengers)
+{
+    var seat = p.FlightSeat;
+
+    <tr>
+
+        <td>@p.PassengerName</td>
+
+        <td>@p.PassengerAge</td>
+
+        <td>@p.PassengerGender</td>
+
+        <td>@seat.SeatNumber</td>
+
+        <td>@seat.SeatType</td>
+
+    </tr>
+}
+
+</tbody>
+
+</table>
+<h4 class="mt-4">
+
+Payment Details
+
+</h4>
+
+<table class="table table-bordered">
+
+<tr>
+
+<th>Transaction ID</th>
+
+<td>@payment.TransactionID</td>
+
+</tr>
+
+<tr>
+
+<th>Payment Method</th>
+
+<td>@payment.PaymentMethod</td>
+
+</tr>
+
+<tr>
+
+<th>Payment Date</th>
+
+<td>
+
+@payment.PaymentDate.ToString("dd MMM yyyy hh:mm tt")
+
+</td>
+
+</tr>
+
+<tr>
+
+<th>Payment Status</th>
+
+<td>
+
+<span class="badge bg-success">
+
+@payment.PaymentStatus
+
+</span>
+
+</td>
+
+</tr>
+
+<tr>
+
+<th>Total Paid</th>
+
+<td>
+
+<h4 class="text-success">
+
+₹@payment.Amount
+
+</h4>
+
+</td>
+
+</tr>
+
+</table>
+<div class="text-center mt-4">
+
+<a href="@Url.Action("DownloadTicket",
+                     "Booking",
+                     new { bookingId = booking.BookingID })"
+   class="btn btn-danger">
+
+Download Ticket (PDF)
+
+</a>
+
+<a href="@Url.Action("SearchFlights",
+                     "Booking")"
+   class="btn btn-primary">
+
+Book Another Flight
+
+</a>
+
+</div>
+</div>
+
+</div>
