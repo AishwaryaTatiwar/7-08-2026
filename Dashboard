@@ -1,0 +1,238 @@
+public ActionResult Dashboard()
+{
+    ViewBag.TotalFlights = db.Flights.Count();
+
+    ViewBag.TotalUsers = db.Users.Count(x => x.Role == "User");
+
+    ViewBag.TotalBookings = db.Bookings.Count();
+
+    ViewBag.TotalRevenue = db.Payments
+                             .Where(x => x.PaymentStatus == "Success")
+                             .Sum(x => (decimal?)x.Amount) ?? 0;
+
+    ViewBag.ConfirmedBookings = db.Bookings
+                                  .Count(x => x.BookingStatus == "Confirmed");
+
+    ViewBag.PendingBookings = db.Bookings
+                                .Count(x => x.BookingStatus == "Pending");
+
+    ViewBag.CancelledBookings = db.Bookings
+                                  .Count(x => x.BookingStatus == "Cancelled");
+
+    ViewBag.AvailableSeats = db.Flights.Sum(x => (int?)x.AvailableSeats) ?? 0;
+
+    ViewBag.TodayBookings = db.Bookings
+                              .Count(x => x.BookingDate.Date == DateTime.Today);
+
+    ViewBag.TodayRevenue = db.Payments
+                             .Where(x => x.PaymentDate.Value.Date == DateTime.Today &&
+                                         x.PaymentStatus == "Success")
+                             .Sum(x => (decimal?)x.Amount) ?? 0;
+
+    return View();
+}
+@{
+    ViewBag.Title = "Admin Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="container-fluid">
+
+    <h2 class="mb-4">
+        Airline Management Dashboard
+    </h2>
+
+    <div class="row">
+
+        <div class="col-md-3 mb-4">
+
+            <div class="card bg-primary text-white shadow">
+
+                <div class="card-body text-center">
+
+                    <h5>Total Flights</h5>
+
+                    <h2>@ViewBag.TotalFlights</h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-3 mb-4">
+
+            <div class="card bg-success text-white shadow">
+
+                <div class="card-body text-center">
+
+                    <h5>Total Users</h5>
+
+                    <h2>@ViewBag.TotalUsers</h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-3 mb-4">
+
+            <div class="card bg-warning text-dark shadow">
+
+                <div class="card-body text-center">
+
+                    <h5>Total Bookings</h5>
+
+                    <h2>@ViewBag.TotalBookings</h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-3 mb-4">
+
+            <div class="card bg-danger text-white shadow">
+
+                <div class="card-body text-center">
+
+                    <h5>Total Revenue</h5>
+
+                    <h2>₹@ViewBag.TotalRevenue</h2>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+<div class="row">
+
+    <div class="col-md-3 mb-4">
+
+        <div class="card border-success shadow">
+
+            <div class="card-body text-center">
+
+                <h5>Confirmed</h5>
+
+                <h2 class="text-success">
+                    @ViewBag.ConfirmedBookings
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-3 mb-4">
+
+        <div class="card border-warning shadow">
+
+            <div class="card-body text-center">
+
+                <h5>Pending</h5>
+
+                <h2 class="text-warning">
+                    @ViewBag.PendingBookings
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-3 mb-4">
+
+        <div class="card border-danger shadow">
+
+            <div class="card-body text-center">
+
+                <h5>Cancelled</h5>
+
+                <h2 class="text-danger">
+                    @ViewBag.CancelledBookings
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-3 mb-4">
+
+        <div class="card border-primary shadow">
+
+            <div class="card-body text-center">
+
+                <h5>Available Seats</h5>
+
+                <h2 class="text-primary">
+                    @ViewBag.AvailableSeats
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+<div class="row">
+
+    <div class="col-md-6">
+
+        <div class="card shadow">
+
+            <div class="card-header bg-info text-white">
+
+                Today's Bookings
+
+            </div>
+
+            <div class="card-body">
+
+                <h2 class="text-center">
+
+                    @ViewBag.TodayBookings
+
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-6">
+
+        <div class="card shadow">
+
+            <div class="card-header bg-success text-white">
+
+                Today's Revenue
+
+            </div>
+
+            <div class="card-body">
+
+                <h2 class="text-center">
+
+                    ₹@ViewBag.TodayRevenue
+
+                </h2>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</div>
