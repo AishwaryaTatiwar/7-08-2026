@@ -52,3 +52,63 @@ public ActionResult Payment(int bookingId,
                                 bookingId=booking.BookingID
                             });
 }
+<div class="mb-3">
+
+    <label class="fw-bold">
+        Select Payment Method
+    </label>
+
+    <div class="form-check">
+
+        <input type="radio"
+               name="paymentMethod"
+               value="Credit Card"
+               checked
+               class="paymentOption form-check-input">
+
+        <label class="form-check-label">
+            Credit Card
+        </label>
+
+    </div>
+
+    <div class="form-check">
+
+        <input type="radio"
+               name="paymentMethod"
+               value="Debit Card"
+               class="paymentOption form-check-input">
+
+        <label class="form-check-label">
+            Debit Card
+        </label>
+
+    </div>
+
+    <div class="form-check">
+
+        <input type="radio"
+               name="paymentMethod"
+               value="UPI"
+               class="paymentOption form-check-input">
+
+        <label class="form-check-label">
+            UPI
+        </label>
+
+    </div>
+
+    <div class="form-check">
+
+        <input type="radio"
+               name="paymentMethod"
+               value="Net Banking"
+               class="paymentOption form-check-input">
+
+        <label class="form-check-label">
+            Net Banking
+        </label>
+
+    </div>
+
+</div>
