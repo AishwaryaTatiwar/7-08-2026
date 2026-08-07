@@ -189,3 +189,37 @@ Amount Payable :
 Pay ₹@booking.TotalAmount
 
 </button>
+<script>
+
+$(function(){
+
+$(".paymentOption").change(function(){
+
+var type=$("input[name='paymentMethod']:checked").val();
+
+$("#cardDiv").hide();
+
+$("#upiDiv").hide();
+
+$("#netBankingDiv").hide();
+
+if(type=="Credit Card" || type=="Debit Card")
+{
+$("#cardDiv").show();
+}
+
+else if(type=="UPI")
+{
+$("#upiDiv").show();
+}
+
+else
+{
+$("#netBankingDiv").show();
+}
+
+});
+
+});
+
+</script>
